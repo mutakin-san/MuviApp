@@ -16,7 +16,7 @@ struct FavoriteView: View {
                 
             }
             ScrollView {
-                LazyVStack {
+                LazyVStack(spacing: 16) {
                     ForEach(favoriteViewModel.filteredMovies, id: \.id) {
                         (favoriteMovie: FavoriteMovie) in
                         HStack(alignment: .top, spacing: 8.0) {
@@ -32,10 +32,9 @@ struct FavoriteView: View {
                                 Text(favoriteMovie.title)
                                     .font(.title2)
                                     .lineLimit(2)
-                                    .padding(.bottom, 8)
                                 Text("\(favoriteMovie.releaseYear)")
                                     .font(.caption)
-                                    .padding(.bottom, 4)
+                                    .padding(.bottom, 2)
                                 Text(favoriteMovie.categories)
                                     .font(.caption2)
                             }
