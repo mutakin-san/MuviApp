@@ -8,6 +8,10 @@
 import Kingfisher
 import UIKit
 
+protocol DetailViewDelegate: NSObject {
+    func didDataChange(detailMovie: Movie?) -> Void
+}
+
 extension DetailViewController: DetailViewDelegate {
     func didDataChange(detailMovie: Movie?) {
         self.detailMovie = detailMovie
@@ -20,6 +24,10 @@ extension DetailViewController: DetailViewDelegate {
             size: APIConfig.posterSizeLarge)
         )
         castCollectionView.reloadData()
+        if let detailMovie {
+            isFavorited = favoriteViewModel.isMovieFavorited(detailMovie)
+            updateFavoriteButton()
+        }
     }
 }
 
@@ -27,18 +35,30 @@ class DetailViewController: UIViewController {
 
     weak var delegate: DetailViewDelegate?
 
-    var detailMovie: Movie? = nil
+    private var detailMovie: Movie? = nil
+    private var isFavorited = false
+    
+    private let favoriteViewModel: FavoriteMovieViewModel
+    
+    init(favoriteViewModel: FavoriteMovieViewModel) {
+        self.favoriteViewModel = favoriteViewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
-    lazy var scrollView: UIScrollView = {
+    private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
         scrollView.alwaysBounceVertical = true
         return scrollView
     }()
 
-    let contentView = UIView()
+    private let contentView = UIView()
 
-    lazy var backButton: UIButton = {
+    private lazy var backButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(UIImage(systemName: "arrow.backward"), for: .normal)
         button.sizeToFit()
@@ -52,7 +72,7 @@ class DetailViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
 
-    lazy var posterImageView: UIImageView = {
+    private lazy var posterImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
@@ -60,7 +80,7 @@ class DetailViewController: UIViewController {
         return imageView
     }()
 
-    lazy var titleLabel: UILabel = {
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 28, weight: .bold)
         label.textColor = .white
@@ -69,7 +89,7 @@ class DetailViewController: UIViewController {
         return label
     }()
 
-    lazy var durationLabel: UILabel = {
+    private lazy var durationLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         label.textColor = .white.withAlphaComponent(0.7)
@@ -77,7 +97,7 @@ class DetailViewController: UIViewController {
         return label
     }()
 
-    lazy var resolutionLabel: UILabel = {
+    private lazy var resolutionLabel: UILabel = {
         let label = PaddingLabel(
             padding: UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6))
         label.font = UIFont.systemFont(ofSize: 10, weight: .bold)
@@ -90,7 +110,7 @@ class DetailViewController: UIViewController {
         return label
     }()
 
-    lazy var infoStackView: UIStackView = {
+    private lazy var infoStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [
             durationLabel, resolutionLabel,
         ])
@@ -101,7 +121,8 @@ class DetailViewController: UIViewController {
     }()
 
     lazy var genresView: UIStackView = createGenresView(genres: [])
-    func createGenresView(genres: [String]) -> UIStackView {
+    
+    private func createGenresView(genres: [String]) -> UIStackView {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.spacing = 8
@@ -110,7 +131,7 @@ class DetailViewController: UIViewController {
         return stackView
     }
 
-    func updateGenresView(with genres: [String]) {
+    private func updateGenresView(with genres: [String]) {
         // Clear old subviews
         genresView.arrangedSubviews.forEach { subview in
             genresView.removeArrangedSubview(subview)
@@ -174,8 +195,37 @@ class DetailViewController: UIViewController {
         let button = UIButton(configuration: config)
         button.setTitle("Add to Favorite", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .bold)
+        button.addTarget(self, action: #selector(handleAddToFavoriteButtonTapped), for: .touchUpInside)
         return button
     }()
+    
+    @objc func handleAddToFavoriteButtonTapped() {
+        guard let detailMovie = detailMovie else { return }
+
+        favoriteViewModel.toggleFavorite(for: detailMovie)
+        isFavorited.toggle()
+        updateFavoriteButton()
+
+        let alert = UIAlertController(
+            title: isFavorited ? "Added to Favorites" : "Removed from Favorites",
+            message: isFavorited ? "Movie is now in your favorites." : "Movie has been removed from favorites.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+    private func updateFavoriteButton() {
+        if isFavorited {
+            addToFavoriteButton.setTitle("Favorited", for: .normal)
+            addToFavoriteButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+            addToFavoriteButton.tintColor = .systemRed
+        } else {
+            addToFavoriteButton.setTitle("Add to Favorite", for: .normal)
+            addToFavoriteButton.setImage(UIImage(systemName: "heart"), for: .normal)
+            addToFavoriteButton.tintColor = .systemYellow
+        }
+    }
 
     lazy var overviewLabel: UILabel = {
         let label = UILabel()
@@ -212,7 +262,7 @@ class DetailViewController: UIViewController {
         return cv
     }()
 
-    func setupUI() {
+    private func setupUI() {
         delegate = self
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
@@ -402,8 +452,4 @@ extension DetailViewController: UICollectionViewDataSource {
         )
         return cell
     }
-}
-
-#Preview {
-    DetailViewController()
 }

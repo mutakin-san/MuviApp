@@ -6,6 +6,7 @@
 //
 
 import RxSwift
+import Foundation
 
 struct DefaultMovieRepository: MovieRepository {
 
@@ -71,18 +72,31 @@ struct DefaultMovieRepository: MovieRepository {
 
 extension MovieEntity {
     func toDomain(genres: [Genre] = [], credits: Credits? = nil) -> Movie {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        
+        var releaseDate: Date = Date()
+
+        if let date = formatter.date(from: self.releaseDate ?? "") {
+            releaseDate = date
+        } else {
+            print("Invalid date string")
+        }
+        
         return Movie(
-            overview: self.overview ?? "",  // default empty string
-            posterPath: self.posterPath ?? "",  // default empty string
+            overview: self.overview ?? "",
+            posterPath: self.posterPath ?? "",
             backdropPath: self.backdropPath ?? "",
             originalTitle: self.originalTitle ?? "",
-            id: self.id ?? 0,  // default 0
-            title: self.title ?? "Unknown",  // fallback name
-            video: self.video ?? false,  // default false
-            duration: self.duration ?? 0,  // default 0 minutes
-            resolution: self.resolution ?? "HD",  // default "HD"
-            credits: credits ?? self.credits?.toDomain(),  // safe map
-            genres: genres  // mapping dari luar
+            id: self.id ?? 0,
+            title: self.title ?? "Unknown",
+            releaseDate: releaseDate,
+            video: self.video ?? false,
+            duration: self.duration ?? 0,
+            resolution: self.resolution ?? "HD",
+            credits: credits ?? self.credits?.toDomain(),
+            genres: genres.isEmpty ? self.genres?.map { $0.toDomain() } ?? [] : genres
         )
     }
 }

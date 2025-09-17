@@ -42,11 +42,3 @@ struct MuviSearchField: View {
         }
     }
 }
-
-struct SearchField_Previews: PreviewProvider {
-    static var previews: some View {
-        MuviSearchField(text: .constant(""), onSubmit: { _ in })
-            .previewLayout(.sizeThatFits)
-            .padding()
-    }
-}

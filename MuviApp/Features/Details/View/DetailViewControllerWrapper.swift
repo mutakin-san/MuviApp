@@ -8,11 +8,12 @@ import SwiftUI
 
 struct DetailViewControllerWrapper: UIViewControllerRepresentable {
     @EnvironmentObject var viewModel: DetailViewModel
+    @EnvironmentObject var favoriteViewModel: FavoriteMovieViewModel
     let movieId: Int
     
     func makeUIViewController(context: Context) -> DetailViewController {
         viewModel.fetchMovie(id: movieId)
-        let vc = DetailViewController()
+        let vc = DetailViewController(favoriteViewModel: favoriteViewModel)
         return vc
     }
     

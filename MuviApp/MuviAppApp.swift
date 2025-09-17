@@ -15,11 +15,13 @@ struct MuviAppApp: App {
     @ObservedObject private var homeViewModel: HomeViewModel
     @ObservedObject private var movieDetailViewModel: DetailViewModel
     @ObservedObject private var searchViewModel: SearchViewModel
+    @ObservedObject private var favoriteViewModel: FavoriteMovieViewModel
     
     init () {
         self.homeViewModel = assembler.resolve()
         self.movieDetailViewModel = assembler.resolve()
         self.searchViewModel = assembler.resolve()
+        self.favoriteViewModel = assembler.resolve()
     }
     
     var body: some Scene {
@@ -28,6 +30,7 @@ struct MuviAppApp: App {
                 .environmentObject(homeViewModel)
                 .environmentObject(movieDetailViewModel)
                 .environmentObject(searchViewModel)
+                .environmentObject(favoriteViewModel)
         }
     }
 }

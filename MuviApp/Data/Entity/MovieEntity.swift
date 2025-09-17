@@ -29,7 +29,7 @@ struct MovieResponse: Mappable {
 struct MovieEntity: Mappable {
     var video: Bool?
     var duration: Int?
-    var resolution: String? = "HD"
+    var resolution: String?
     var credits: CreditsEntity?
     var genres: [GenreEntity]?
     var backdropPath: String?
@@ -37,6 +37,7 @@ struct MovieEntity: Mappable {
     var id: Int?
     var posterPath: String?
     var title: String?
+    var releaseDate: String?
     var overview: String?
     var genreIds: [Int]?
 
@@ -52,6 +53,7 @@ struct MovieEntity: Mappable {
         id <- map["id"]
         posterPath <- map["poster_path"]
         title <- map["title"]
+        releaseDate <- map["release_date"]
         video <- map["video"]
         duration <- map["runtime"]
         overview <- map["overview"]

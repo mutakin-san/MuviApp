@@ -44,7 +44,7 @@ struct CustomTabView: View {
                 switch selectedIndex {
                 case 0: HomeView().foregroundStyle(.white)
                 case 1: SearchView().foregroundStyle(.white)
-                case 2: Text("Favorites").foregroundColor(.white)
+                case 2: FavoriteView().foregroundColor(.white)
                 case 3: Text("Grid").foregroundColor(.white)
                 default: Text("Other").foregroundColor(.white)
                 }

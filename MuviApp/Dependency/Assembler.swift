@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol Assembler: MovieAssembler {}
+protocol Assembler: MovieAssembler, FavoriteMovieAssembler {}
 
 class AppAssembler: Assembler, ObservableObject {}
