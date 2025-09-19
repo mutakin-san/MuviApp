@@ -8,22 +8,27 @@
 
 import SwiftUI
 
+enum Menus: String, CaseIterable {
+    case home = "house.fill"
+    case search = "rosette"
+    case favorite = "heart"
+}
+
 struct CustomTabBar: View {
-    @Binding var selectedIndex: Int
-    let icons = ["house.fill", "rosette", "heart", "square.grid.2x2"]
+    @Binding var selectedMenu: Menus
 
     var body: some View {
         HStack {
-            ForEach(0..<icons.count, id: \.self) { index in
+            ForEach(Menus.allCases, id: \.self) { menu in
                 Button {
                     withAnimation(.easeInOut) {
-                        selectedIndex = index
+                        selectedMenu = menu
                     }
                 } label: {
                     VStack(spacing: 6) {
-                        Image(systemName: icons[index])
+                        Image(systemName: menu.rawValue)
                             .font(.system(size: 22))
-                            .foregroundColor(selectedIndex == index ? .muviYellow : .white)
+                            .foregroundColor(selectedMenu == menu ? .muviYellow : .white)
 
                     }
                     .frame(maxWidth: .infinity)
@@ -36,23 +41,21 @@ struct CustomTabBar: View {
 }
 
 struct CustomTabView: View {
-    @State private var selectedIndex = 0
+    @State private var selectedMenu: Menus = .home
 
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
-                switch selectedIndex {
-                case 0: HomeView().foregroundStyle(.white)
-                case 1: SearchView().foregroundStyle(.white)
-                case 2: FavoriteView().foregroundColor(.white)
-                case 3: Text("Grid").foregroundColor(.white)
-                default: Text("Other").foregroundColor(.white)
+                switch selectedMenu {
+                case .home: HomeView().foregroundStyle(.white)
+                case .search: SearchView().foregroundStyle(.white)
+                case .favorite: FavoriteView().foregroundColor(.white)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.muviBackground)
 
-            CustomTabBar(selectedIndex: $selectedIndex)
+            CustomTabBar(selectedMenu: $selectedMenu)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
